@@ -1,0 +1,99 @@
+---
+title: "Statistical Inference Course Project"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+# Part 2: Basic Inferential Data Analysis Instruction
+## Data Reading and Summary
+We must begin by loading the necessary libraries for the analysis
+```{r}
+library(datasets)
+library(ggplot2)
+```
+The ToothGrowth Dataset is then assigned to the variable *df*, we also perform a basic summary of this dataet:
+```{r}
+data(ToothGrowth)
+df <- ToothGrowth
+summary(df)
+```
+```{r}
+head(df)
+```
+```{r}
+unique(df$len)
+```
+```{r}
+unique(df$supp)
+```
+```{r}
+unique(df$dose)
+```
+```{r}
+by(df$len, INDICES = list(df$supp, df$dose), summary)
+```
+
+## Dataset Description
+The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC).
+
+In this project we are asked to use confidence intervals amd/or hypothesis tests to comapre tooth growth by *sup* (suplement type) and *dose* (dose levels of said vitamin).
+
+## Exploratory Data Analysis
+We start the EDA by performing a basic exploratory data analysis to see if ther is a visible pattern on the growth of the tooth based on the type of vitamin and its dosage: 
+```{r}
+g <- ggplot(df, aes(supp,len))
+g + geom_boxplot(color = "red") +
+  facet_grid(.~dose)
+```
+Based on the graph, it can be con be concluded that a bigger dosage results in longer teeth in both types of supplements, and that in both 0.5 and 1 mg/day orange juice leads to better results, while vitamin C is more effective with 2 mg/day. It would then be beneficial to explore both variables in isolation:
+```{r}
+g <- ggplot(df, aes(x = factor(dose), y = len))
+g + geom_boxplot(aes(fill = factor(dose)))
+```
+In this graphic we can prove that a bigger dose leads to longer teeth
+```{r}
+g <- ggplot(df, aes(x = supp, y = len))
+g + geom_boxplot(aes(fill = supp))
+```
+In this case, the results are not clear, while Orange Juice seems to be better than Vitamin C, it only is so by a small margin. It would be better to proceed with statistical methods to probe these hypotheses.
+## Hypothesis testing to compare tooth length by Vitamin Supplement and Dosage
+```{r}
+t.test(len ~ supp, paired = FALSE, val.equal = F, data = df)
+```
+We have a p-value of 0.06, meaning we cannot reject the null hypothesis that supplement types 
+## Analysis for correlation between dose level and tooth growth:
+```{r}
+d1 <- subset(df, dose %in% c(0.5, 1.0))
+d2 <- subset(df, dose %in% c(0.5, 2.0))
+d3 <- subset(df, dose %in% c(1.0, 2.0))
+t.test(len ~ dose, paired = F, var.equal = F, data = d1)
+```
+```{r}
+t.test(len ~ dose, paired = F, var.equal = F, data = d2)
+```
+```{r}
+t.test(len ~ dose, paired = F, var.equal = F, data = d3)
+```
+## Analysis for correlation between dose level and tooth growth for each dose level:
+```{r}
+d4 <- subset(df, dose == 0.5)
+d5 <- subset(df, dose == 1.0)
+d6 <- subset(df, dose == 2.0)
+t.test( len ~ supp, paired = F, var.equal = F,  data = d4)
+```
+```{r}
+t.test( len ~ supp, paired = F, var.equal = F,  data = d5)
+```
+```{r}
+t.test( len ~ supp, paired = F, var.equal = F,  data = d6)
+```
+The confidence intervals for 0.5 mg and 1.0 mg allow the rejection of the null hypothesis and confirm that there is correlation between those dose levels and tooth length. The interval for 2.0 mg is not enough to reject the null hypothesis.
+## Conclussions and Assumptions
+We made the following assumptions to reach our conclusions:
+
+* The populations are independent
+* A random population was used
+* Similar guinea pigs made the population
+* At least 60 guinea pigs would have to be used for each combination of the variables
+
+We can then conclude that there is a significant correlation between tooth length and dose levels with both vitamin supplements. There is a significant difference between 0.5 and 1.0 mg, but not significant enough with 2.0 mg. The better delivery method is orange juice, above maximum dosage there is no further improvement.

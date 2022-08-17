@@ -5,8 +5,7 @@ output:
   html_notebook: default
 ---
 
-#Part 1: Simulation Excercise
-
+# Part 1: Simulation Excercise
 It is good practice to set a defined seed on an experiment to improve reproducibility.
 ```{r}
 set.seed(240598)
@@ -63,3 +62,11 @@ tVar
 We therefore proved that both variances are very close to each other
 
 ## Distribution
+The Central Limit Theorem states that the simulation should follow a normal distribution
+```{r}
+hist(eMean, breaks = 50, main = "Histogram of the simulated data")
+xfit <- seq(min(eMean),max(eMean), length = 50)
+yfit <- dnorm(xfit, mean = tMean, sd = tSd)
+lines(xfit, yfit * 100, lty = 1)
+```
+This figure proves that the distribution of means of the sampled exponential distributions follow a normal distribution.
